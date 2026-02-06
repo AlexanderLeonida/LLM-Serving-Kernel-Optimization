@@ -20,10 +20,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
 gpu = [
     "triton>=2.0.0",
 ]
+dev = [
     "pytest>=7.4",
     "pytest-benchmark>=4.0",
     "ruff>=0.1.0",
