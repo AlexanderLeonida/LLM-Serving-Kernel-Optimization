@@ -13,7 +13,7 @@ authors = [{ name = "Your Name" }]
 
 dependencies = [
     "torch>=2.1.0",
-    "triton>=2.1.0",
+    "triton>=2.0.0",
     "transformers>=4.36.0",
     "vllm>=0.2.7",
     "numpy>=1.24.0",
