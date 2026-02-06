@@ -1,0 +1,54 @@
+# LightningRouter – 4-Expert MoE Configuration
+# Targeting 1–2 GPU deployment with 4-bit quantization
+
+model:
+  name: "lightning-moe-4e"
+  hidden_size: 4096
+  intermediate_size: 11008
+  num_attention_heads: 32
+  num_key_value_heads: 8        # GQA
+  num_hidden_layers: 32
+  vocab_size: 32000
+  max_position_embeddings: 4096
+
+moe:
+  num_experts: 4
+  num_experts_per_token: 2      # top-2 gating
+  gating_type: "top_k_softmax"
+  expert_capacity_factor: 1.25  # over-provision capacity to reduce drops
+  load_balance_loss_weight: 0.01
+  routing_implementation: "triton"   # "triton" | "torch"
+
+quantization:
+  enabled: true
+  bits: 4
+  group_size: 128
+  scheme: "asymmetric"          # "symmetric" | "asymmetric"
+  quantize_experts: true
+  quantize_attention: true
+
+kernel:
+  block_size_m: 128
+  block_size_n: 64
+  block_size_k: 32
+  num_warps: 4
+  num_stages: 3
+  use_shared_memory_cache: true
+  coalesced_access: true
+
+serving:
+  engine: "vllm"
+  tensor_parallel_size: 1       # 1 or 2 GPUs
+  max_num_batched_tokens: 8192
+  max_num_seqs: 256
+  gpu_memory_utilization: 0.90
+  swap_space_gb: 4
+  enforce_eager: false           # allow CUDA graph capture
+
+profiling:
+  enabled: false
+  nsight_output_dir: "profiling_results/"
+  trace_expert_routing: true
+  trace_kernel_execution: true
+  warmup_iterations: 5
+  profile_iterations: 20

@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lightning-router"
+version = "0.1.0"
+description = "High-performance MoE LLM inference with custom GPU kernels, 4-bit quantization, and vLLM integration"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Your Name" }]
+
+dependencies = [
+    "torch>=2.1.0",
+    "triton>=2.1.0",
+    "transformers>=4.36.0",
+    "vllm>=0.2.7",
+    "numpy>=1.24.0",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-benchmark>=4.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7",
+]
+profile = [
+    "matplotlib>=3.8",
+    "pandas>=2.1",
+    "seaborn>=0.13",
+]
+
+[project.scripts]
+lightning-router = "lightning_router.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lightning_router*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "gpu: marks tests requiring GPU (deselect with '-m \"not gpu\"')",
+    "slow: marks slow-running benchmarks",
+]
