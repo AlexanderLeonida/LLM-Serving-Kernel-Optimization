@@ -7,6 +7,14 @@ from __future__ import annotations
 import pytest
 import torch
 
+# Check for CUDA and Triton availability
+CUDA_AVAILABLE = torch.cuda.is_available()
+try:
+    import triton
+    TRITON_AVAILABLE = True
+except ImportError:
+    TRITON_AVAILABLE = False
+
 from lightning_router.models.gating import TopKGating
 
 
@@ -55,6 +63,8 @@ class TestTopKGating:
 
 
 @pytest.mark.gpu
+@pytest.mark.skipif(not CUDA_AVAILABLE, reason="CUDA not available")
+@pytest.mark.skipif(not TRITON_AVAILABLE, reason="Triton not installed")
 class TestMoELayer:
     """GPU tests for the full MoE layer."""
 
