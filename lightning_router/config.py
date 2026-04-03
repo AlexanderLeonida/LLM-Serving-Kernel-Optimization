@@ -57,7 +57,7 @@ class KernelConfig:
 
 @dataclass
 class ServingConfig:
-    engine: str = "vllm"
+    engine: Literal["vllm", "sglang"] = "vllm"
     tensor_parallel_size: int = 1
     max_num_batched_tokens: int = 8192
     max_num_seqs: int = 256

@@ -1,1 +1,1 @@
-"""vLLM integration for serving MoE models with custom kernels."""
+"""Inference serving backends (vLLM and SGLang) for MoE models with custom kernels."""

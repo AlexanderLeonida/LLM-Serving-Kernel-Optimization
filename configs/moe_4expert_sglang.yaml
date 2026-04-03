@@ -1,29 +1,29 @@
-# LightningRouter – 4-Expert MoE Configuration
-# Targeting 1–2 GPU deployment with 4-bit quantization
+# LightningRouter – 4-Expert MoE with SGLang backend
+# Targeting 2-GPU deployment with 4-bit quantization
 
 model:
   name: "lightning-moe-4e"
   hidden_size: 4096
   intermediate_size: 11008
   num_attention_heads: 32
-  num_key_value_heads: 8        # GQA
+  num_key_value_heads: 8
   num_hidden_layers: 32
   vocab_size: 32000
   max_position_embeddings: 4096
 
 moe:
   num_experts: 4
-  num_experts_per_token: 2      # top-2 gating
+  num_experts_per_token: 2
   gating_type: "top_k_softmax"
-  expert_capacity_factor: 1.25  # over-provision capacity to reduce drops
+  expert_capacity_factor: 1.25
   load_balance_loss_weight: 0.01
-  routing_implementation: "triton"   # "triton" | "torch"
+  routing_implementation: "triton"
 
 quantization:
   enabled: true
   bits: 4
   group_size: 128
-  scheme: "asymmetric"          # "symmetric" | "asymmetric"
+  scheme: "asymmetric"
   quantize_experts: true
   quantize_attention: true
 
@@ -37,13 +37,13 @@ kernel:
   coalesced_access: true
 
 serving:
-  engine: "vllm"
-  tensor_parallel_size: 2       # 1 or 2 GPUs (expert-parallel sharding)
+  engine: "sglang"
+  tensor_parallel_size: 2
   max_num_batched_tokens: 8192
   max_num_seqs: 256
   gpu_memory_utilization: 0.90
   swap_space_gb: 4
-  enforce_eager: false           # allow CUDA graph capture
+  enforce_eager: false
 
 profiling:
   enabled: false

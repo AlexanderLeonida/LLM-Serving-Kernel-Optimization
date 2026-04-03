@@ -32,6 +32,10 @@ checkpoints/
 *.pt
 *.pth
 
+# Benchmark results & figures
+results/
+figures/
+
 # Logs
 logs/
 *.log

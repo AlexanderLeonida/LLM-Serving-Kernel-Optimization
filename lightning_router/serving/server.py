@@ -33,39 +33,44 @@ def launch_server(
     cfg = load_config(config_path)
     logger.info("Loaded config from %s", config_path)
 
-    tp = TensorParallelGroup(
-        tp_size=cfg.serving.tensor_parallel_size,
-        model_config=asdict(cfg.model),
-        moe_config=asdict(cfg.moe),
-        quant_config=asdict(cfg.quantization),
-        kernel_config=asdict(cfg.kernel),
-        serving_config=asdict(cfg.serving),
-    )
-    tp.init_all()
+    engine = cfg.serving.engine
+    tp_size = cfg.serving.tensor_parallel_size
 
-    logger.info("LightningRouter ready – listening on %s:%d", host, port)
     logger.info(
-        "Experts=%d  top_k=%d  quantised=%s  TP=%d",
+        "Launching: engine=%s  experts=%d  top_k=%d  quantised=%s  TP=%d",
+        engine,
         cfg.moe.num_experts,
         cfg.moe.num_experts_per_token,
         cfg.quantization.enabled,
-        cfg.serving.tensor_parallel_size,
+        tp_size,
     )
 
-    # ── In production, hand off to vLLM's async engine:
-    #
-    #   from vllm.entrypoints.api_server import run_server
-    #   run_server(engine, host, port)
-    #
-    # For now, we print a ready message.  The actual serving integration
-    # is in the ``LightningRouterWorker`` which plugs into vLLM's loop.
-    print(f"✓ LightningRouter serving on http://{host}:{port}")
-    print("  Press Ctrl+C to stop.")
+    if engine == "sglang":
+        from lightning_router.serving.sglang_backend import launch_sglang_server
 
-    try:
-        import time
+        launch_sglang_server(config_path, host=host, port=port, tp_size=tp_size)
+    else:
+        # Default: vLLM backend
+        tp = TensorParallelGroup(
+            tp_size=tp_size,
+            model_config=asdict(cfg.model),
+            moe_config=asdict(cfg.moe),
+            quant_config=asdict(cfg.quantization),
+            kernel_config=asdict(cfg.kernel),
+            serving_config=asdict(cfg.serving),
+        )
+        tp.init_all()
 
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nShutting down.")
+        # In production, hand off to vLLM's async engine:
+        #   from vllm.entrypoints.api_server import run_server
+        #   run_server(engine, host, port)
+        print(f"LightningRouter (vLLM) serving on http://{host}:{port}")
+        print("  Press Ctrl+C to stop.")
+
+        try:
+            import time
+
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nShutting down.")

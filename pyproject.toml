@@ -5,25 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "lightning-router"
 version = "0.1.0"
-description = "High-performance MoE LLM inference with custom GPU kernels, 4-bit quantization, and vLLM integration"
+description = "High-performance MoE LLM inference with custom Triton GPU kernels, 4-bit quantization, and vLLM/SGLang integration"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-authors = [{ name = "Your Name" }]
-
 dependencies = [
     "torch>=2.1.0",
+    "triton>=2.1.0",
     "transformers>=4.36.0",
     "numpy>=1.24.0",
-    "pydantic>=2.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
-gpu = [
-    "triton>=2.0.0",
-]
 serving = [
     "vllm>=0.2.7",
+    "sglang>=0.1.0",
 ]
 dev = [
     "pytest>=7.4",
